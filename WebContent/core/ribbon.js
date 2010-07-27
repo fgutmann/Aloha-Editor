@@ -13,56 +13,55 @@
  */
 GENTICS.Aloha.Ribbon = function() {
 	
+	/**
+	 * jQuery object of the main container of the ribbon
+	 */
+	this.ribbon;
+	
+	/**
+	 * Fade in/out button
+	 */
+	this.fadeButton;
+	
+	/**
+	 * Status if the ribbon is currently faded out or not.
+	 * True if the ribbon is faded out, false otherwise.
+	 */
+	this.fadedOut = false;
+	
+	/**
+	 * Status if the ribbon is visible.
+	 */
+	this.visible = false;
+	
+	
 	var that = this;
+	this.ribbon = jQuery('<div class="GENTICS_ribbon ui-widget-header"></div>');
 	
-	// the ribbon
-	this.toolbar = new Ext.Toolbar({
-		height: 30,
-		cls: 'GENTICS_ribbon ext-root'
-	});
-	
-	jQuery('body').css('paddingTop', '30px !important');
-	
-	// left spacer to gain some space from the left screen border
-	this.toolbar.add(new Ext.Toolbar.Spacer({width: '5'}));
-	// icon
-	this.icon = new Ext.Toolbar.Spacer();
-	this.toolbar.add(this.icon);
-	// fill so that everything after it is aligned right
-	this.toolbar.add(new Ext.Toolbar.Fill());
-	// seperator before the fade out button
-	this.toolbar.add(new Ext.Toolbar.Separator());
-	// fade out button
-	var fadeButton = new Ext.Button({
-		iconCls : 'GENTICS_fade_out',
-		handler : function (button) {
-			var toolbar = $(that.toolbar.getEl().dom);
-			
-			if (button.iconCls == 'GENTICS_fade_out') {
-				toolbar.css('marginLeft', '34px');
-				toolbar.animate({
+	this.fadeButton = jQuery('<button></button>').button({
+			icons : { primary: 'ui-icon-triangle-1-w' },
+			text : false
+		}).click(function(){
+			if (that.fadedOut) {
+				// fade in
+				that.ribbon.css('marginLeft', '0px');
+				that.ribbon.animate({
+					left: '0'
+				});
+				$(this).button('option', 'icons', {primary : 'ui-icon-triangle-1-w'});
+				that.fadedOut = false;
+			} else {
+				// fade out
+				that.ribbon.css('marginLeft', '30px');
+				that.ribbon.animate({
 					left: '-100%'
 				});
-				jQuery('body').animate({
-					paddingTop: 0
-				});
-				button.setIconClass('GENTICS_fade_in');
-			} else {
-				toolbar.css('marginLeft', '0px');
-				toolbar.animate({
-					left: '0%'
-				});
-				jQuery('body').animate({
-					paddingTop: 30
-				});
-				button.setIconClass('GENTICS_fade_out');
+				$(this).button('option', 'icons', {primary : 'ui-icon-triangle-1-e'});
+				that.fadedOut = true;
 			}
-			that.toolbar.doLayout();
-		}
-	});
-	this.toolbar.add(fadeButton);
-	// spacer to gain some space from the right screen border
-	this.toolbar.add(new Ext.Toolbar.Spacer({width: '5'}));
+		});
+	
+	this.ribbon.append(this.fadeButton);
 };
 
 /**
@@ -70,11 +69,7 @@ GENTICS.Aloha.Ribbon = function() {
  * @param {String} iconClass CSS class for the icon
  */
 GENTICS.Aloha.Ribbon.prototype.setIcon = function (iconClass) {
-	if (typeof this.icon.cls != 'undefined') {
-		this.icon.removeClass(this.icon.cls);
-	}
-	
-	this.icon.addClass(iconClass);
+
 };
 
 /**
@@ -133,32 +128,38 @@ GENTICS.Aloha.Ribbon.prototype.addButton = function (button) {
  */
 GENTICS.Aloha.Ribbon.prototype.addSeparator = function() {
 	this.toolbar.insert(this.toolbar.items.getCount() - 3, new Ext.Toolbar.Separator());
-}
+};
+
 
 /**
  * Initilization of the Ribbon
  * @hide
  */
 GENTICS.Aloha.Ribbon.prototype.init = function() {
-	this.toolbar.render(document.body, 0);
-	
+	$(document.body).append(this.ribbon);
+
 	if (GENTICS.Aloha.settings.ribbon !== false) {
-		this.show();
+		this.setVisible(true);
 	}
 };
 
 /**
- * Shows the ribbon
+ * Displays or hides the ribbon.
+ * @param {boolean} visibility True if the ribbon should be displayed, false if it should be hidden.
+ * @method
  */
-GENTICS.Aloha.Ribbon.prototype.hide = function () {
-	jQuery('.GENTICS_ribbon').fadeOut();
-};
-
-/**
- * Hides the ribbon
- */
-GENTICS.Aloha.Ribbon.prototype.show = function () {
-	jQuery('.GENTICS_ribbon').fadeIn();
+GENTICS.Aloha.Ribbon.prototype.setVisible = function (visibility) {		
+	if (visibility && ! this.visible) {
+		this.ribbon.show();
+		$(document.body).css('paddingTop', '30px !important');
+		this.visible = true;
+	}
+	
+	if (!visibility && this.visible) {
+		this.ribbon.hide();
+		$(document.body).css('paddingTop', '');
+		this.visible = false;
+	}
 };
 
 GENTICS.Aloha.Ribbon = new GENTICS.Aloha.Ribbon();

@@ -274,33 +274,32 @@ div.GENTICS_button a:hover {
 	background-image: url('../images/gentics_logo.png') !important;
 }
 
-.GENTICS_fade_out {
-	background-image: url('../images/fade_out.png') !important;
-	width:20px !important;
-	height:20px !important;
-}
-
-.GENTICS_fade_in {
-	background-image: url('../images/fade_in.png') !important;
-	width:20px !important;
-	height:20px !important;
-}
-
 .GENTICS_maximize {
 	width:20px !important;
 	height:20px !important;
 	background-image: url('../images/maximize.png') !important;
 }
 
-html body .GENTICS_ribbon {
-	z-index:90000;
+.GENTICS_ribbon {
 	position:fixed;
+	z-index:90000;
 	top:0;
 	left:0;
+	height:26px;
 	width:100%;
-	padding-left:0;
-	padding-right:0;
+	padding: 2px 0;
+	broder-top:none;
 	display: none;
+	font-size: 10px;
+}
+
+.GENTICS_ribbon .ui-button-icon-only {
+	min-height: 26px;
+}
+
+.GENTICS_ribbon .ui-button {
+	float: right;
+	margin: 0 3px;
 }
 
 .x-menu-list-item {
