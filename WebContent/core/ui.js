@@ -89,6 +89,12 @@ GENTICS.Aloha.ui.Button = function(properties) {
 	 */
 	this.extButton;
 
+	/**
+	 * hold the jquery object of the button
+	 * @hide
+	 */
+	this.jQueryButton;
+	
 	GENTICS.Utils.applyProperties(this, properties);
 
 	/**
@@ -112,6 +118,39 @@ GENTICS.Aloha.ui.Button.idCounter = 0;
 GENTICS.Aloha.ui.Button.prototype.generateId = function () {
 	GENTICS.Aloha.ui.Button.idCounter = GENTICS.Aloha.ui.Button.idCounter + 1;
 	return 'GENTICS_Aloha_ui_Button_' + GENTICS.Aloha.ui.Button.idCounter;
+};
+
+/**
+ * Get the DOM object that represents the button
+ * @return {jQuery} the DOM object of the button
+ */
+GENTICS.Aloha.ui.Button.prototype.getDom() {
+	if (! this.jQueryButton) {
+		var that = this;
+		var config = {};
+		
+		// the text on the button
+		if (this.label) {
+			config.label = label;
+		} else {
+			config.text = false;
+		}
+		
+		// icons
+		if (this.iconClass) {
+			config.icons = { primary : this.iconClass }
+		}
+		
+		this.jQueryButton = jQuery('<button></button>').button(config);
+		
+		if (typeof this.onclick === 'function') {
+			this.jQueryButton.click(function () {
+				that.onclick.apply(that);
+			});
+		}
+	}
+	
+	return this.jQueryButton.get(0);
 };
 
 /**

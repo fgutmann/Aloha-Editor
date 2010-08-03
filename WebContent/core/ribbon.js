@@ -62,6 +62,7 @@ GENTICS.Aloha.Ribbon = function() {
 		});
 	
 	this.ribbon.append(this.fadeButton);
+	this.addSeparator();
 };
 
 /**
@@ -124,10 +125,11 @@ GENTICS.Aloha.Ribbon.prototype.addButton = function (button) {
 };
 
 /**
- * Adds a seperator to the Ribbon.
+ * Adds a separator to the Ribbon.
  */
 GENTICS.Aloha.Ribbon.prototype.addSeparator = function() {
-	this.toolbar.insert(this.toolbar.items.getCount() - 3, new Ext.Toolbar.Separator());
+	var separator = jQuery('<span class="GENTICS_separator ui-icon ui-icon-grip-dotted-vertical">&nbsp;</span>');
+	this.ribbon.append(separator);
 };
 
 

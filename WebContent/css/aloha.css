@@ -280,28 +280,6 @@ div.GENTICS_button a:hover {
 	background-image: url('../images/maximize.png') !important;
 }
 
-.GENTICS_ribbon {
-	position:fixed;
-	z-index:90000;
-	top:0;
-	left:0;
-	height:26px;
-	width:100%;
-	padding: 2px 0;
-	broder-top:none;
-	display: none;
-	font-size: 10px;
-}
-
-.GENTICS_ribbon .ui-button-icon-only {
-	min-height: 26px;
-}
-
-.GENTICS_ribbon .ui-button {
-	float: right;
-	margin: 0 3px;
-}
-
 .x-menu-list-item {
 	text-align:left;
 }
@@ -406,4 +384,36 @@ ul.GENTICS_multisplit-expanded {
 
 ul.GENTICS_multisplit button.GENTICS_button_removeFormat {
 	background-image: url(../images/removeformat.png) !important;
+}
+
+/**
+ * New classes moved to jquery UI
+ */
+ 
+.GENTICS_ribbon {
+	position:fixed;
+	display: none;
+	z-index:90000;
+	top:0;
+	left:0;
+	height:26px;
+	width:100%;
+	padding: 2px 0;
+	border-top:0 !important;
+	font-size: 10px;
+}
+
+.GENTICS_ribbon .ui-button-icon-only {
+	min-height: 26px;
+}
+
+.GENTICS_ribbon .ui-button {
+	float: right;
+	margin: 0 3px;
+}
+
+.GENTICS_ribbon .GENTICS_separator {
+	float: right;
+	width: 10px;
+	margin: 5px 3px;
 }
