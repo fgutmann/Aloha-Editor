@@ -80,6 +80,7 @@
 		<concat destfile="${srcdir}/core/include-js.inc" force="true">
 			<fileset file="deps/includejs-header.txt"/>
 			<filelist dir="${outdir}" files="${deps.includes.filename},${aloha.includes.filename}"></filelist>
+			<fileset file="deps/includejs-footer.txt"/>
 		</concat>
 
 		<!-- and the css file -->
@@ -233,7 +234,7 @@
 			<fileset dir="${packagedir}/examples">
 	            <include name="**/*.html" />
 			</fileset>
-			<regexp pattern="(&lt;script.*?src=&quot;)../core/include-js.inc(&quot;.*)"/>
+			<regexp pattern="(&lt;script.*?src=&quot;)../core/include.js(&quot;.*)"/>
 			<substitution expression="\1aloha/aloha.js\2"/>
 		</replaceregexp>
 		<!-- fix the includes of the plugins -->
