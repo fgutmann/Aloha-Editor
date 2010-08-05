@@ -29,6 +29,11 @@ GENTICS.Aloha.TablePlugin.createLayer = undefined;
 GENTICS.Aloha.TablePlugin.languages = ['en', 'de', 'fr', 'eo'];
 
 /**
+ * default button configuration
+ */
+GENTICS.Aloha.TablePlugin.config = [ 'table' ];
+
+/**
  * An Array which holds all newly created tables contains DOM-Nodes of
  * table-objects
  */
@@ -103,13 +108,25 @@ GENTICS.Aloha.TablePlugin.init = function() {
 	this.initTableButtons();
 
 	GENTICS.Aloha.EventRegistry.subscribe(GENTICS.Aloha, 'selectionChanged', function(event, properties) {
-		if (GENTICS.Aloha.Selection.mayInsertTag('table')) {
+
+		// get Plugin configuration
+		var config = that.getEditableConfig( GENTICS.Aloha.activeEditable.obj );
+		
+		// show hide buttons regarding configuration and DOM position
+		if ( jQuery.inArray('table', config) != -1  && GENTICS.Aloha.Selection.mayInsertTag('table') ) {
 			that.createTableButton.show();
 		} else {
 			that.createTableButton.hide();
 		}
+
+		// set the scope if either columns or rows are selected
+		if (typeof GENTICS.Aloha.TableHelper.selectionType != undefined) {
+			GENTICS.Aloha.FloatingMenu.setScope(that.getUID(GENTICS.Aloha.TableHelper.selectionType));
+		}
+
 		// TODO this should not be necessary here!
 		GENTICS.Aloha.FloatingMenu.doLayout();
+	
 	});
 
 	// subscribe for the 'editableDeactivated' event to deactivate all tables in the editable
@@ -643,8 +660,8 @@ GENTICS.Aloha.Table.prototype.activate = function() {
 		this.obj.attr('id', GENTICS.Aloha.TableHelper.getNewTableID());
 	}
 
-	// TODO set the scope of the floatingmenu
-	GENTICS.Aloha.FloatingMenu.setScope('GENTICS.Aloha.continuoustext');
+	// unset the selection type
+	GENTICS.Aloha.TableHelper.selectionType = undefined;
 
 	this.obj.bind('keydown', function(jqEvent){
 		if (!jqEvent.ctrlKey && !jqEvent.shiftKey) {
@@ -1284,10 +1301,21 @@ GENTICS.Aloha.Table.prototype.deleteTable = function() {
 		// before deleting the table, deactivate it
 		this.deactivate();
 
+		GENTICS.Aloha.TableHelper.selectionType = undefined;
 		GENTICS.Aloha.TablePlugin.TableRegistry.splice(i, 1);
+
+		// we will set the cursor right before the removed table
+		var newRange = GENTICS.Aloha.Selection.rangeObject;
+		// TODO set the correct range here (cursor shall be right before the removed table)
+		newRange.startContainer = newRange.endContainer = this.obj.get(0).parentNode;
+		newRange.startOffset = newRange.endOffset = GENTICS.Utils.Dom.getIndexInParent(this.obj.get(0).parentNode);
+		newRange.clearCaches();
+
 		this.obj.remove();
 		this.parentEditable.obj.focus();
-		delete this;
+		// select the new range
+		newRange.correctRange();
+		newRange.select();
 	}
 };
 
@@ -1581,7 +1609,7 @@ GENTICS.Aloha.Table.prototype.selectColumns = function() {
 	// unselect selected cells
 	GENTICS.Aloha.TableHelper.unselectCells();
 
-	GENTICS.Aloha.TableHelper.selectionType = 'col';
+	GENTICS.Aloha.TableHelper.selectionType = 'column';
 
 	this.columnsToSelect.sort(function(a,b){return a - b;});
 
@@ -1597,20 +1625,15 @@ GENTICS.Aloha.Table.prototype.selectColumns = function() {
 			var colIndex = this.columnsToSelect[j];
 			var cell = rowCells[colIndex];
 			toSelect.push(cell);
-			if (i == 0 && j == 0) {
-				if (jQuery.browser.msie) {
-					// setTimeout(jQuery(cell).children('div.GENTICS_Table_Cell_editable').get(0).focus, 5);
-				}else{
-					jQuery(cell).children('div.GENTICS_Table_Cell_editable').get(0).focus();
-				}
-			}
 			selectedCellsInCol.push(cell);
 		}
 		GENTICS.Aloha.TableHelper.selectedCells.push(selectedCellsInCol);
 	};
-	jQuery(toSelect).addClass(selectClass);
+	// blur all editables within the table
+	this.obj.find('div.GENTICS_Table_Cell_editable').blur();
 
-	GENTICS.Aloha.FloatingMenu.setScope(GENTICS.Aloha.TablePlugin.getUID('column'));
+	// add the class (visually selecting the cells)
+	jQuery(toSelect).addClass(selectClass);
 };
 
 
@@ -1635,19 +1658,12 @@ GENTICS.Aloha.Table.prototype.selectRows = function() {
 		rowCells.shift();
 		
 		GENTICS.Aloha.TableHelper.selectedCells.push(rowCells);
-		if (i == 0) {
-			if (jQuery.browser.msie) {
-				// setTimeout(jQuery(rowCells[0]).children('div.GENTICS_Table_Cell_editable').get(0).focus, 5);
-			}else{
-				jQuery(rowCells[0]).children('div.GENTICS_Table_Cell_editable').get(0).focus();
-			}
-		}
 		jQuery(rowCells).addClass(this.get('classCellSelected'));
 	}
 	GENTICS.Aloha.TableHelper.selectionType = 'row';
 
-	// set the scope of the floatingmenu
-	GENTICS.Aloha.FloatingMenu.setScope(GENTICS.Aloha.TablePlugin.getUID('row'));
+	// blur all editables within the table
+	this.obj.find('div.GENTICS_Table_Cell_editable').blur();
 };
 
 
@@ -1791,8 +1807,8 @@ GENTICS.Aloha.Table.Cell.prototype.editableFocus = function(e) {
 		// select the whole content in the table-data field
 		this.selectAll(this.wrapper.get(0));
 
-		// set the scope of the floating menu
-		GENTICS.Aloha.FloatingMenu.setScope('GENTICS.Aloha.continuoustext');
+		// unset the selection type
+		GENTICS.Aloha.TableHelper.selectionType = undefined;
 	}
 };
 
@@ -1818,10 +1834,15 @@ GENTICS.Aloha.Table.Cell.prototype.editableBlur = function(jqEvent){
 };
 
 GENTICS.Aloha.Table.Cell.prototype.activate = function() {
+	// wrap the created div into the contents of the cell
+	this.obj.wrapInner('<div/>');
+
 	// create the editable wrapper for the cells
-	var wrapper = jQuery('<div>');
+	var wrapper = this.obj.children('div').eq(0);
+
 	wrapper.attr('contenteditable', 'true');
 	wrapper.addClass('GENTICS_Table_Cell_editable');
+
 
 	var that = this;
 	// attach events to the editable div-object
@@ -1865,8 +1886,6 @@ GENTICS.Aloha.Table.Cell.prototype.activate = function() {
 	});
 	this.obj.get(0).onselectstart = function (jqEvent) { return false; };
 	
-	// wrap the created div into the contents of the cell
-	this.obj.wrapInner(wrapper);
 	
 	// set contenteditable wrapper div
 	this.wrapper = this.obj.children();
@@ -1973,15 +1992,12 @@ GENTICS.Aloha.Table.Cell.prototype.selectAll = function(editableNode) {
  * @return void
  */
 GENTICS.Aloha.Table.Cell.prototype.editableMouseDown = function(jqEvent) {
-	// deselect all highlighted cells registred in the TableHelper object
+	// deselect all highlighted cells registered in the TableHelper object
 	GENTICS.Aloha.TableHelper.unselectCells();
 	
 	if (this.tableObj.hasFocus) {
 		jqEvent.stopPropagation();
 	}
-
-	// set the scope of the floating menu
-	GENTICS.Aloha.FloatingMenu.setScope('GENTICS.Aloha.continuoustext');
 };
 
 /**
@@ -2038,7 +2054,7 @@ GENTICS.Aloha.Table.Cell.prototype.editableKeyDown = function(jqEvent) {
 				this.tableObj.selectRows();
 				
 				break;
-			case 'col': 
+			case 'column': 
 				switch(jqEvent.keyCode) {
 					case KEYCODE_ARROWLEFT:
 						var firstColSelected = GENTICS.Aloha.TableHelper.selectedCells[0][0].cellIndex;
