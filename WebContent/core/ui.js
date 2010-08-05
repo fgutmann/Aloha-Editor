@@ -124,7 +124,7 @@ GENTICS.Aloha.ui.Button.prototype.generateId = function () {
  * Get the DOM object that represents the button
  * @return {jQuery} the DOM object of the button
  */
-GENTICS.Aloha.ui.Button.prototype.getDom() {
+GENTICS.Aloha.ui.Button.prototype.getDom = function() {
 	if (! this.jQueryButton) {
 		var that = this;
 		var config = {};

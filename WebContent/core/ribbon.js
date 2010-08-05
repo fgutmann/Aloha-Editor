@@ -40,6 +40,7 @@ GENTICS.Aloha.Ribbon = function() {
 	
 	this.fadeButton = jQuery('<button></button>').button({
 			icons : { primary: 'ui-icon-triangle-1-w' },
+			label : '&#160;',
 			text : false
 		}).click(function(){
 			if (that.fadedOut) {

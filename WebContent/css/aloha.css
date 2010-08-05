@@ -392,19 +392,14 @@ ul.GENTICS_multisplit button.GENTICS_button_removeFormat {
  
 .GENTICS_ribbon {
 	position:fixed;
-	display: none;
 	z-index:90000;
 	top:0;
 	left:0;
-	height:26px;
 	width:100%;
 	padding: 2px 0;
 	border-top:0 !important;
 	font-size: 10px;
-}
-
-.GENTICS_ribbon .ui-button-icon-only {
-	min-height: 26px;
+	display: none;
 }
 
 .GENTICS_ribbon .ui-button {

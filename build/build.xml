@@ -53,7 +53,7 @@
 		<mkdir dir="${packagedir}/debug" />
 	</target>
 
-	<!-- recreate the file include-js.inc -->
+	<!-- recreate the file include.js -->
 	<target name="build-dev-include" depends="makedirs">
 		<!-- 
 			replace everything for development includes
@@ -77,7 +77,7 @@
 		<replaceregexp byline="true" file="${outdir}/${css.includes.filename}" match="(.+)" replace="${dev.includecss.subst}"/>
 
 		<!-- now concat the js files -->
-		<concat destfile="${srcdir}/core/include-js.inc" force="true">
+		<concat destfile="${srcdir}/core/include.js" force="true">
 			<fileset file="deps/includejs-header.txt"/>
 			<filelist dir="${outdir}" files="${deps.includes.filename},${aloha.includes.filename}"></filelist>
 			<fileset file="deps/includejs-footer.txt"/>
