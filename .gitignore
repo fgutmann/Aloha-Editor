@@ -2,4 +2,5 @@
 .settings
 build/out
 build/api-docs-out
+.DS_Store
 *.orig
